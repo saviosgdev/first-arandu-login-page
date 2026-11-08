@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Criar conta</title>
+  <style>
+    :root {
+      --fundo: #eef2f7;
+      --cartao: #ffffff;
+      --texto: #1b2433;
+      --texto-suave: #5d6b82;
+      --borda: #cdd5e1;
+      --destaque: #2457d6;
+      --destaque-hover: #1b43a8;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fundo: #121722;
+        --cartao: #1c2332;
+        --texto: #eef1f7;
+        --texto-suave: #9aa7bd;
+        --borda: #333e55;
+        --destaque: #6b94ff;
+        --destaque-hover: #8aaaff;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--fundo);
+      color: var(--texto);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .cadastro {
+      width: 100%;
+      max-width: 400px;
+      padding: 36px 32px;
+      background: var(--cartao);
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+    }
+
+    .cadastro h1 {
+      margin: 0 0 6px;
+      font-size: 1.6rem;
+    }
+
+    .cadastro p {
+      margin: 0 0 24px;
+      color: var(--texto-suave);
+      font-size: 0.95rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      margin-bottom: 18px;
+      padding: 11px 12px;
+      font-size: 1rem;
+      color: var(--texto);
+      background: transparent;
+      border: 1px solid var(--borda);
+      border-radius: 8px;
+    }
+
+    .dica {
+      display: block;
+      margin: -12px 0 18px;
+      font-size: 0.82rem;
+      color: var(--texto-suave);
+    }
+
+    .termos {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .termos input { margin-top: 3px; }
+    .termos label { margin: 0; font-weight: 400; }
+
+    input:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--destaque);
+      outline-offset: 2px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--destaque);
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--destaque-hover); }
+
+    .links {
+      margin-top: 18px;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    a { color: var(--destaque); }
+  </style>
+</head>
+<body>
+  <main class="cadastro">
+    <h1>Criar conta</h1>
+    <p>Preencha os dados abaixo para começar.</p>
+
+    <form action="#" method="post">
+      <label for="nome">Nome completo</label>
+      <input type="text" id="nome" name="nome" placeholder="Maria Silva" required>
+
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" placeholder="voce@exemplo.com" required>
+
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" name="senha" minlength="8" placeholder="Crie uma senha" required>
+      <span class="dica">Use pelo menos 8 caracteres.</span>
+
+      <label for="confirmar">Confirmar senha</label>
+      <input type="password" id="confirmar" name="confirmar" placeholder="Repita a senha" required>
+
+      <div class="termos">
+        <input type="checkbox" id="termos" name="termos" required>
+        <label for="termos">Li e aceito os <a href="#">termos de uso</a>.</label>
+      </div>
+
+      <button type="submit">Criar conta</button>
+    </form>
+
+    <div class="links">
+      Já tem uma conta? <a href="login.html">Entrar</a>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
