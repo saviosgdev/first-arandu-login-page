@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #18191d;
+      color: #e5e7eb;
+      font-family: Inter, sans-serif;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 32px;
+      background: #1f2230;
+      border-bottom: 1px solid #2b2f40;
+    }
+    main { padding: 48px 32px; }
+    button {
+      background: #6280d1;
+      color: #fff;
+      border: 0;
+      border-radius: 6px;
+      padding: 10px 18px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Arandu</strong>
+    <form action="/logout" method="POST">
+      <button type="submit">Sair</button>
+    </form>
+  </header>
+
+  <main>
+    <h1>Olá, <span id="nome">...</span>! 👋</h1>
+    <p>Você está logado. Esta é a tela principal do site.</p>
+  </main>
+
+  <script>
+    fetch('/api/usuario')
+      .then(r => r.json())
+      .then(dados => {
+        document.getElementById('nome').textContent = dados.nome;
+      });
+  </script>
+</body>
+</html>
