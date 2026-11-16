@@ -98,3 +98,34 @@
     a { color: var(--destaque); }
   </style>
 </head>
+<body>
+  <main class="cartao">
+    <h1>Criar nova senha</h1>
+    <p>Escolha uma nova senha para a sua conta.</p>
+
+    <form action="/redefinir-senha" method="post">
+      <input type="hidden" id="token" name="token">
+
+      <label for="senha">Nova senha</label>
+      <input type="password" id="senha" name="senha" minlength="8" placeholder="Digite a nova senha" required>
+      <span class="dica">Use pelo menos 8 caracteres.</span>
+
+      <label for="confirmar">Confirmar nova senha</label>
+      <input type="password" id="confirmar" name="confirmar" placeholder="Repita a nova senha" required>
+
+      <button type="submit">Salvar nova senha</button>
+    </form>
+
+    <div class="links">
+      <a href="login.html">Voltar para o login</a>
+    </div>
+  </main>
+
+  <script>
+    // Pega o token do link (?token=...) e coloca no campo escondido
+    document.getElementById('token').value =
+      new URLSearchParams(location.search).get('token') || '';
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>

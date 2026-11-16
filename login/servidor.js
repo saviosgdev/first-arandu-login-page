@@ -1,34 +1,26 @@
 require('dotenv').config();
 
-const express = require('express');
-const { Pool } = require('pg');
-const bcrypt = require('bcrypt');
-const session = require('express-session');
+const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const express = require('express');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+const { Pool } = require('pg');
 
-const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
+const EM_PRODUCAO = process.env.NODE_ENV === 'production';
+const SENHA_MINIMA = 8;
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,                 
-    maxAge: 1000 * 60 * 60 * 24     
-  }
-}));
-
-function exigirLogin(req, res, next) {
-  if (!req.session.usuario) {
-    return res.redirect('/login.html');
-  }
-  next();
+if (!process.env.SESSION_SECRET) {
+  console.error('Defina SESSION_SECRET no arquivo .env antes de iniciar.');
+  process.exit(1);
 }
 
-app.use(express.urlencoded({ extended: true }));
+const app = express();
+
+if (EM_PRODUCAO) app.set('trust proxy', 1);
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -38,11 +30,49 @@ const pool = new Pool({
   database: process.env.DB_NAME,
 });
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: EM_PRODUCAO,
+    maxAge: 1000 * 60 * 60 * 24,
+  },
+}));
+
+function exigirLogin(req, res, next) {
+  if (!req.session.usuario) {
+    return res.redirect('/login.html');
+  }
+  next();
+}
+
+function gerarHashToken(token) {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+
+app.get('/', (req, res) => {
+  res.redirect('/login.html');
+});
+
+
 app.post('/cadastro', async (req, res) => {
   const { nome, email, senha, confirmar } = req.body;
 
+  if (!nome || !email || !senha) {
+    return res.status(400).send('Preencha todos os campos.');
+  }
   if (senha !== confirmar) {
     return res.status(400).send('As senhas não são iguais.');
+  }
+  if (senha.length < SENHA_MINIMA) {
+    return res.status(400).send(`A senha precisa ter pelo menos ${SENHA_MINIMA} caracteres.`);
   }
 
   try {
@@ -66,6 +96,10 @@ app.post('/cadastro', async (req, res) => {
 app.post('/login', async (req, res) => {
   const { email, senha } = req.body;
 
+  if (!email || !senha) {
+    return res.status(400).send('Informe e-mail e senha.');
+  }
+
   try {
     const resultado = await pool.query(
       'SELECT id, nome, senha_hash FROM usuarios WHERE email = $1',
@@ -79,15 +113,25 @@ app.post('/login', async (req, res) => {
       return res.status(401).send('E-mail ou senha inválidos.');
     }
 
-    req.session.usuario = { id: usuario.id, nome: usuario.nome };
-    res.redirect('/painel');
+    // Gera uma sessão nova ao logar (evita session fixation)
+    req.session.regenerate((err) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Erro ao fazer login.');
+      }
+      req.session.usuario = { id: usuario.id, nome: usuario.nome };
+      res.redirect('/painel');
+    });
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao fazer login.');
   }
 });
 
-// Passo 1: pedir o link de redefinição
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => res.redirect('/login.html'));
+});
+
 app.post('/esqueci-senha', async (req, res) => {
   const { email } = req.body;
 
@@ -100,21 +144,19 @@ app.post('/esqueci-senha', async (req, res) => {
     if (resultado.rows.length > 0) {
       const usuarioId = resultado.rows[0].id;
       const token = crypto.randomBytes(32).toString('hex');
-      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
-      // apaga pedidos antigos e cria o novo (válido por 1 hora)
       await pool.query('DELETE FROM redefinicao_senha WHERE usuario_id = $1', [usuarioId]);
       await pool.query(
         `INSERT INTO redefinicao_senha (usuario_id, token_hash, expira_em)
          VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
-        [usuarioId, tokenHash]
+        [usuarioId, gerarHashToken(token)]
       );
 
-      const link = `http://localhost:3000/redefinir-senha.html?token=${token}`;
-      console.log('Link de redefinição:', link); // depois trocamos por envio de e-mail
+      const link = `${BASE_URL}/redefinir-senha.html?token=${token}`;
+      console.log('Link de redefinição:', link); 
     }
 
-    // resposta igual exista o e-mail ou não
+    
     res.redirect('/esqueci-senha.html?enviado=1');
   } catch (erro) {
     console.error(erro);
@@ -122,39 +164,51 @@ app.post('/esqueci-senha', async (req, res) => {
   }
 });
 
-// Passo 2: salvar a nova senha
 app.post('/redefinir-senha', async (req, res) => {
   const { token, senha, confirmar } = req.body;
 
-  if (!token || senha !== confirmar || senha.length < 8) {
-    return res.status(400).send('Dados inválidos. A senha precisa ter 8 caracteres e ser igual nos dois campos.');
+  if (!token || !senha || senha !== confirmar || senha.length < SENHA_MINIMA) {
+    return res.status(400).send(
+      `Dados inválidos. A senha precisa ter ${SENHA_MINIMA} caracteres e ser igual nos dois campos.`
+    );
   }
 
-  try {
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const client = await pool.connect();
 
-    const resultado = await pool.query(
-      `SELECT id, usuario_id FROM redefinicao_senha
-       WHERE token_hash = $1 AND usado = FALSE AND expira_em > NOW()`,
-      [tokenHash]
+  try {
+    await client.query('BEGIN');
+
+    const resultado = await client.query(
+      `UPDATE redefinicao_senha
+       SET usado = TRUE
+       WHERE token_hash = $1 AND usado = FALSE AND expira_em > NOW()
+       RETURNING usuario_id`,
+      [gerarHashToken(token)]
     );
 
     if (resultado.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(400).send('Link inválido ou expirado. Peça um novo.');
     }
 
-    const { id, usuario_id } = resultado.rows[0];
     const novaSenhaHash = await bcrypt.hash(senha, 10);
 
-    await pool.query('UPDATE usuarios SET senha_hash = $1 WHERE id = $2', [novaSenhaHash, usuario_id]);
-    await pool.query('UPDATE redefinicao_senha SET usado = TRUE WHERE id = $1', [id]);
+    await client.query(
+      'UPDATE usuarios SET senha_hash = $1 WHERE id = $2',
+      [novaSenhaHash, resultado.rows[0].usuario_id]
+    );
 
+    await client.query('COMMIT');
     res.redirect('/login.html');
   } catch (erro) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error(erro);
     res.status(500).send('Erro ao redefinir a senha.');
+  } finally {
+    client.release();
   }
 });
+
 
 app.get('/painel', exigirLogin, (req, res) => {
   res.sendFile(path.join(__dirname, 'privado', 'painel.html'));
@@ -164,9 +218,22 @@ app.get('/api/usuario', exigirLogin, (req, res) => {
   res.json({ nome: req.session.usuario.nome });
 });
 
-app.post('/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/login.html'));
+
+app.listen(PORT, () => {
+  console.log(`Rodando em ${BASE_URL}`);
+
+  const esperados = [
+    'public/login.html',
+    'public/criar-conta.html',
+    'public/esqueci-senha.html',
+    'public/redefinir-senha.html',
+    'public/script.js',
+    'privado/painel.html',
+  ];
+
+  esperados.forEach((arquivo) => {
+    if (!fs.existsSync(path.join(__dirname, arquivo))) {
+      console.warn(`ATENÇÃO: arquivo não encontrado: ${arquivo}`);
+    }
+  });
 });
-
-
-app.listen(3000, () => console.log('Rodando em http://localhost:3000'));
