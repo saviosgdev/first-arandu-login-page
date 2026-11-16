@@ -5,6 +5,7 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
 const path = require('path');
+const crypto = require('crypto');
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
@@ -15,8 +16,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    httpOnly: true,                 // o JavaScript do navegador não lê o cookie
-    maxAge: 1000 * 60 * 60 * 24     // 1 dia
+    httpOnly: true,                 
+    maxAge: 1000 * 60 * 60 * 24     
   }
 }));
 
@@ -83,6 +84,75 @@ app.post('/login', async (req, res) => {
   } catch (erro) {
     console.error(erro);
     res.status(500).send('Erro ao fazer login.');
+  }
+});
+
+// Passo 1: pedir o link de redefinição
+app.post('/esqueci-senha', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const resultado = await pool.query(
+      'SELECT id FROM usuarios WHERE email = $1',
+      [email]
+    );
+
+    if (resultado.rows.length > 0) {
+      const usuarioId = resultado.rows[0].id;
+      const token = crypto.randomBytes(32).toString('hex');
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+      // apaga pedidos antigos e cria o novo (válido por 1 hora)
+      await pool.query('DELETE FROM redefinicao_senha WHERE usuario_id = $1', [usuarioId]);
+      await pool.query(
+        `INSERT INTO redefinicao_senha (usuario_id, token_hash, expira_em)
+         VALUES ($1, $2, NOW() + INTERVAL '1 hour')`,
+        [usuarioId, tokenHash]
+      );
+
+      const link = `http://localhost:3000/redefinir-senha.html?token=${token}`;
+      console.log('Link de redefinição:', link); // depois trocamos por envio de e-mail
+    }
+
+    // resposta igual exista o e-mail ou não
+    res.redirect('/esqueci-senha.html?enviado=1');
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao processar o pedido.');
+  }
+});
+
+// Passo 2: salvar a nova senha
+app.post('/redefinir-senha', async (req, res) => {
+  const { token, senha, confirmar } = req.body;
+
+  if (!token || senha !== confirmar || senha.length < 8) {
+    return res.status(400).send('Dados inválidos. A senha precisa ter 8 caracteres e ser igual nos dois campos.');
+  }
+
+  try {
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const resultado = await pool.query(
+      `SELECT id, usuario_id FROM redefinicao_senha
+       WHERE token_hash = $1 AND usado = FALSE AND expira_em > NOW()`,
+      [tokenHash]
+    );
+
+    if (resultado.rows.length === 0) {
+      return res.status(400).send('Link inválido ou expirado. Peça um novo.');
+    }
+
+    const { id, usuario_id } = resultado.rows[0];
+    const novaSenhaHash = await bcrypt.hash(senha, 10);
+
+    await pool.query('UPDATE usuarios SET senha_hash = $1 WHERE id = $2', [novaSenhaHash, usuario_id]);
+    await pool.query('UPDATE redefinicao_senha SET usado = TRUE WHERE id = $1', [id]);
+
+    res.redirect('/login.html');
+  } catch (erro) {
+    console.error(erro);
+    res.status(500).send('Erro ao redefinir a senha.');
   }
 });
 

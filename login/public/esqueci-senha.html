@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Esqueci minha senha</title>
+  <style>
+    :root {
+      --fundo: #eef2f7;
+      --cartao: #ffffff;
+      --texto: #1b2433;
+      --texto-suave: #5d6b82;
+      --borda: #cdd5e1;
+      --destaque: #2457d6;
+      --destaque-hover: #1b43a8;
+      --aviso-fundo: #e6f4ea;
+      --aviso-texto: #1e5b2f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fundo: #121722;
+        --cartao: #1c2332;
+        --texto: #eef1f7;
+        --texto-suave: #9aa7bd;
+        --borda: #333e55;
+        --destaque: #6b94ff;
+        --destaque-hover: #8aaaff;
+        --aviso-fundo: #1d3a29;
+        --aviso-texto: #b9e6c6;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: var(--fundo);
+      color: var(--texto);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .cartao {
+      width: 100%;
+      max-width: 380px;
+      padding: 36px 32px;
+      background: var(--cartao);
+      border: 1px solid var(--borda);
+      border-radius: 12px;
+    }
+
+    h1 { margin: 0 0 6px; font-size: 1.6rem; }
+
+    p { margin: 0 0 24px; color: var(--texto-suave); font-size: 0.95rem; }
+
+    .aviso {
+      display: none;
+      margin-bottom: 20px;
+      padding: 12px 14px;
+      font-size: 0.9rem;
+      color: var(--aviso-texto);
+      background: var(--aviso-fundo);
+      border-radius: 8px;
+    }
+
+    .aviso.visivel { display: block; }
+
+    label { display: block; margin-bottom: 6px; font-size: 0.9rem; font-weight: 600; }
+
+    input {
+      width: 100%;
+      margin-bottom: 18px;
+      padding: 11px 12px;
+      font-size: 1rem;
+      color: var(--texto);
+      background: transparent;
+      border: 1px solid var(--borda);
+      border-radius: 8px;
+    }
+
+    input:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--destaque);
+      outline-offset: 2px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--destaque);
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover { background: var(--destaque-hover); }
+
+    .links { margin-top: 18px; font-size: 0.9rem; text-align: center; }
+    a { color: var(--destaque); }
+  </style>
+</head>
+<body>
+  <main class="cartao">
+    <h1>Esqueci minha senha</h1>
+    <p>Informe seu e-mail e enviaremos um link para você criar uma nova senha.</p>
+
+    <div class="aviso" id="aviso" role="status">
+      Se o e-mail estiver cadastrado, o link de redefinição foi enviado. Ele vale por 1 hora.
+    </div>
+
+    <form action="/esqueci-senha" method="post">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" placeholder="voce@exemplo.com" required>
+
+      <button type="submit">Enviar link</button>
+    </form>
+
+    <div class="links">
+      <a href="login.html">Voltar para o login</a>
+    </div>
+  </main>
+
+  <script>
+    if (new URLSearchParams(location.search).get('enviado') === '1') {
+      document.getElementById('aviso').classList.add('visivel');
+    }
+  </script>
+</body>
+</html>
