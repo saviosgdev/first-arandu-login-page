@@ -26,8 +26,8 @@ Aplicação web simples de cadastro de usuários. A pessoa preenche o formulári
 ### 2. Clone o repositório e instale as dependências
 
 ```bash
-git clone https://github.com/SEU_USUARIO/SEU_REPOSITORIO.git
-cd SEU_REPOSITORIO/login
+git clone https://github.com/first-arandu-login-page.git
+cd html-css-javascript/login
 npm install
 ```
 
