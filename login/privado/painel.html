@@ -2,239 +2,221 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Arandu</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Museu Meridiano – Pinturas via Wikimedia Commons</title>
 <style>
-:root{--bg:#0c0d0b;--panel:#131411;--line:#2a2b25;--text:#ece8dd;--muted:#8c8a7f;--accent:#c9472b;--gap:10px}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:Poppins,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-
-.app{height:100%;min-height:640px;display:grid;grid-template-columns:300px 1fr}
-
-/* sidebar: logo + busca no topo, trilho e painel embaixo */
-.side{border-right:1px solid var(--line);display:grid;grid-template-columns:84px 1fr;grid-template-rows:auto 1fr;min-height:0}
-.brand{grid-column:1/-1;padding:18px 18px 14px}
-.logo{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:54px;line-height:1;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1.6px var(--text);display:block;margin-bottom:14px;text-decoration:none}
-.search{display:flex;align-items:center;gap:8px;border:1.5px solid var(--text);border-radius:999px;padding:7px 14px;background:var(--panel)}
-.search svg{width:15px;height:15px;stroke:var(--text);flex:none}
-.search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:400 13px Poppins,sans-serif}
-.search input::placeholder{color:var(--muted)}
-.rail{border-top:1px solid var(--line);border-right:1px solid var(--line);padding:14px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
-.rail button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font:500 11px Poppins,sans-serif;color:var(--muted);transition:border-color .15s,color .15s}
-.rail button[aria-pressed="true"]{border-color:var(--accent);color:var(--text)}
-.list{border-top:1px solid var(--line);padding:16px 14px;overflow:auto}
-.list h2{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px}
-.list ul{list-style:none;display:grid;gap:8px}
-.list li{height:44px;border-radius:10px;background:var(--panel);border:1px solid var(--line)}
-
-/* grid 12x12, igual ao desenho: cada card é só a pintura */
-.board{padding:var(--gap);display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(12,minmax(0,1fr));gap:var(--gap);min-width:0;min-height:0}
-.card{display:block;position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(150deg,#26251f,#121310);border:1px solid var(--line);cursor:pointer;transition:border-color .2s}
-.card:hover{border-color:#6a6b5f}
-.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease,opacity .4s;opacity:0}
-.card img.ok{opacity:1}
-.card:hover img{transform:scale(1.04)}
-
-.c1{grid-area:1/1/4/5}.c2{grid-area:4/1/7/3}.c3{grid-area:4/3/7/5}
-.c4{grid-area:7/1/10/5}.c5{grid-area:10/1/13/5}
-.c6{grid-area:1/5/5/8}.c7{grid-area:1/8/3/10}.c8{grid-area:3/8/5/10}
-.c9{grid-area:1/10/5/13}.c10{grid-area:5/5/9/10}.c11{grid-area:5/10/7/13}
-.c12{grid-area:7/10/13/13}.c13{grid-area:9/5/11/7}.c14{grid-area:11/5/13/7}
-.c15{grid-area:9/7/13/10}
-
-button.card{padding:0;font:inherit;color:inherit;text-align:left}
-dialog#lightbox{border:0;padding:0;background:transparent;max-width:none;max-height:none;width:100%;height:100%;cursor:zoom-out}
-dialog#lightbox[open]{display:flex;align-items:center;justify-content:center;animation:surge .25s ease}
-dialog#lightbox::backdrop{background:rgba(6,6,5,.95)}
-#lb-img{max-width:96vw;max-height:94vh;object-fit:contain;border-radius:4px;box-shadow:0 10px 60px rgba(0,0,0,.6)}
-.fechar{position:fixed;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(19,20,17,.85);color:var(--text);cursor:pointer;display:grid;place-items:center}
-.fechar:hover{border-color:var(--text)}
-.fechar svg{width:18px;height:18px;stroke:currentColor}
-@keyframes surge{from{opacity:0}to{opacity:1}}
-.credito,.status{font-size:11px;line-height:1.5;color:var(--muted);margin-top:16px}
-.credito a{color:var(--text)}
-.status:empty{display:none}
-@media(max-width:1000px){
-  .app{height:auto;grid-template-columns:1fr}
-  .side{grid-template-columns:1fr;border-right:0;border-bottom:1px solid var(--line)}
-  .rail{flex-direction:row;padding:10px 14px;border-right:0}
-  .list{display:none}
-  .board{grid-template-columns:1fr 1fr;grid-template-rows:none;grid-auto-rows:170px}
-  .card{grid-area:auto!important}
-  .c1,.c10,.c4,.c5{grid-column:span 2}
-}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+:root{--bg:#FAF9F5;--surface:#F0EEE6;--ink:#141413;--muted:#5f5e5a;--line:#dcdad0;--media:#e6e4da;color-scheme:light}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 Georgia,"Times New Roman",serif}
+button,input{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.sans{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+a{color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+header{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);z-index:5}
+header .wrap{height:64px;display:flex;align-items:center}
+.logo{font-weight:700;font-size:20px;background:none;border:0;color:var(--ink);cursor:pointer;padding:0}
+h1{font-size:clamp(32px,5vw,56px);line-height:1.1;letter-spacing:-.02em;font-weight:500;margin:0;max-width:18ch}
+.hero{padding:80px 0 32px}
+.hero p{color:var(--muted);max-width:56ch;font-size:19px;margin:20px 0 0}
+form{display:flex;gap:10px;margin-top:32px;max-width:640px}
+input{flex:1;min-width:0;padding:14px 18px;border-radius:999px;border:1px solid var(--ink);background:var(--bg);color:var(--ink);font-size:16px}
+.btn{padding:12px 22px;border-radius:999px;border:1px solid var(--ink);background:var(--ink);color:#FAF9F5;font-size:15px;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:wait}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chip{padding:6px 14px;border:1px solid var(--line);background:var(--surface);border-radius:999px;font-size:14px;cursor:pointer;color:var(--ink)}
+.chip:hover{border-color:var(--ink)}
+.msg{color:var(--muted);margin:24px 0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:8px 0 72px}
+.card{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0;cursor:pointer;overflow:hidden;color:var(--ink)}
+.card:hover{border-color:var(--ink)}
+.card img{display:block;width:100%;height:280px;object-fit:cover;background:var(--media)}
+.card .t{padding:14px 18px 18px}
+.card h3{margin:0 0 4px;font-size:17px;font-weight:500;line-height:1.3}
+.card p{margin:0;font-size:13px;color:var(--muted)}
+.back{background:none;border:0;color:var(--ink);text-decoration:underline;cursor:pointer;font-size:15px;padding:24px 0 8px}
+.detail{display:grid;grid-template-columns:1.4fr 1fr;gap:40px;padding-bottom:64px;align-items:start}
+.detail figure{margin:0}
+.detail figure img{cursor:zoom-in;display:block;width:100%;height:auto;border:1px solid var(--line);background:var(--media)}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px}
+.detail h2{font-size:30px;line-height:1.2;font-weight:500;margin:0;overflow-wrap:anywhere}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:15px;margin:20px 0}
+dt{color:var(--muted)}dd{margin:0}
+.ia{grid-column:1/-1;border-top:1px solid var(--line);padding-top:24px;color:var(--muted)}
+footer{background:#141413;color:#FAF9F5;padding:48px 0 40px;font-size:15px}
+footer p{margin:0;color:#9c9b95;max-width:60ch}
+#viewer{position:fixed;inset:0;z-index:20;background:rgba(20,20,19,.5);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);display:flex;flex-direction:column}
+#stage{flex:1;min-height:0;overflow:hidden;display:grid;place-items:center;cursor:grab;touch-action:none}
+#stage.drag{cursor:grabbing}
+#vimg{max-width:94vw;max-height:84vh;transform-origin:center;will-change:transform;user-select:none;-webkit-user-drag:none;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+#vx{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;width:44px;height:44px;border-radius:50%;border:0;background:#FAF9F5;color:#141413;font-size:20px;cursor:pointer;z-index:2}
+#vbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 20px calc(env(safe-area-inset-bottom,0px) + 14px);color:#FAF9F5;font-size:14px}
+#vbar button{padding:8px 16px;border-radius:999px;border:1px solid #FAF9F5;background:transparent;color:#FAF9F5;cursor:pointer;font-size:14px}
+#vbar .acoes{display:flex;gap:8px}
+[hidden]{display:none!important}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.detail{grid-template-columns:1fr}}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.hero{padding-top:48px}form{flex-direction:column}}
 </style>
 </head>
 <body>
-<div class="app">
-  <aside class="side">
-    <div class="brand">
-      <a href="#" class="logo" aria-label="Arandu">ARANDU</a>
-      <label class="search">
-        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-        <input id="q" type="search" aria-label="Buscar">
-      </label>
+<header><div class="wrap"><button class="logo" id="home">Arandu</button></div></header>
+
+<main class="wrap">
+  <section id="busca">
+    <div class="hero">
+      <h1>Pinturas de todas as épocas, em um só lugar.</h1>
+      <p>Busque por artista, personagem ou tema. As imagens vêm direto do acervo aberto do Wikimedia Commons.</p>
+      <form id="f"><input id="q" placeholder="Ex.: Napoleon Bonaparte, Monet, Dom Pedro II" aria-label="Buscar pinturas" required><button class="btn" id="go">Buscar</button></form>
+      <div class="chips"><button class="chip" type="button">Napoleon Bonaparte</button><button class="chip" type="button">Leonardo da Vinci</button><button class="chip" type="button">Vincent van Gogh</button><button class="chip" type="button">Pedro II do Brasil</button></div>
     </div>
-    <nav class="rail" aria-label="Categorias">
-      <button aria-pressed="true">Pintura</button>
-      <button aria-pressed="false">Pessoas</button>
-      <button aria-pressed="false">Eventos</button>
-    </nav>
-    <div class="list"><h2>Recentes</h2><ul><li></li><li></li><li></li><li></li><li></li></ul>
-      <p class="status" id="status" role="status"></p>
-      <p class="credito">Pinturas em domínio público via <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>.</p>
+    <p class="msg sans" id="status"></p>
+    <div class="grid" id="res"></div>
+  </section>
+
+  <section id="obra" hidden>
+    <button class="back" id="voltar">← Voltar aos resultados</button>
+    <div class="detail">
+      <figure>
+        <img id="foto" alt="">
+        <figcaption id="credito"></figcaption>
+      </figure>
+      <div>
+        <h2 id="titulo"></h2>
+        <dl id="meta"></dl>
+        <p id="resumo"></p>
+      </div>
+      <div class="ia sans" id="ia">O guia de IA que explica cada detalhe da pintura entra aqui na próxima etapa.</div>
     </div>
-  </aside>
-  <main class="board" id="board"></main>
+  </section>
+</main>
+
+<footer><div class="wrap"><p>Imagens e descrições via Wikimedia Commons. Cada arquivo tem sua própria licença, indicada na ficha da obra.</p></div></footer>
+
+<div id="viewer" hidden role="dialog" aria-modal="true" aria-label="Visualizador da obra">
+  <button id="vx" aria-label="Fechar">✕</button>
+  <div id="stage"><img id="vimg" alt="" draggable="false"></div>
+  <div id="vbar" class="sans"><span id="vcred"></span><span class="acoes"><button id="vreset">Redefinir zoom</button></span></div>
 </div>
 
-<dialog id="lightbox" aria-label="Pintura ampliada">
-  <button class="fechar" type="button" aria-label="Fechar">
-    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
-  </button>
-  <img id="lb-img" alt="">
-</dialog>
-
 <script>
-/* ===== AS PINTURAS: Wikidata (descobre quais) + Wikimedia Commons (miniatura e licença) =====
-   1) Wikidata: pinturas famosas, feitas antes de 1900, de pintores mortos antes de 1950.
-   2) Commons: devolve a miniatura (já redimensionada pelo Wikimedia) e a licença de cada arquivo;
-      só ficam as marcadas como domínio público. Nada de imagem fica no seu código. */
-const SPARQL  = 'https://query.wikidata.org/sparql';
-const COMMONS = 'https://commons.wikimedia.org/w/api.php';
-const CACHE_KEY = 'arandu:pinturas:v3', TTL = 6 * 3600 * 1000, QTD = 15;
-const LARGURA = 960, GRANDE = 1920;                      // um dos tamanhos padrão de miniatura do Wikimedia
-const board  = document.getElementById('board');
-const status = document.getElementById('status');
+(function(){
+var API="https://commons.wikimedia.org/w/api.php";
+var $=function(s){return document.querySelector(s)};
+var BASE={action:"query",format:"json",origin:"*",prop:"imageinfo",iiprop:"url|size|mime|extmetadata",iiextmetadatafilter:"ObjectName|Artist|DateTimeOriginal|LicenseShortName|ImageDescription"};
 
-const consulta = `
-SELECT ?img ?titulo ?autor WHERE {
-  ?obra wdt:P31 wd:Q3305213; wdt:P18 ?img; wdt:P571 ?data; wdt:P170 ?pintor; wikibase:sitelinks ?links.
-  ?pintor wdt:P570 ?morte.
-  FILTER(YEAR(?data) < 1900 && YEAR(?morte) < 1950 && ?links >= 12)
-  SERVICE wikibase:label { bd:serviceParam wikibase:language "pt,en". ?obra rdfs:label ?titulo. ?pintor rdfs:label ?autor. }
-} ORDER BY RAND() LIMIT 60`;
+function limpar(h){if(!h)return"";return(new DOMParser().parseFromString(h,"text/html").body.textContent||"").replace(/\s+/g," ").trim()}
+function seguro(u){return typeof u==="string"&&u.indexOf("https://")===0?u:""}
+async function commons(p){
+  var u=new URL(API);var o=Object.assign({},BASE,p);
+  Object.keys(o).forEach(function(k){u.searchParams.set(k,o[k])});
+  var r=await fetch(u);if(!r.ok)throw new Error("http");return r.json();
+}
+function nomeObra(t,artista){
+  t=(t||"").replace(/\.(jpe?g|png|tiff?)$/i,"").replace(/_/g," ");
+  t=t.replace(/\s*[-–—(]?\s*Google Art Project\)?\s*$/i,"").replace(/\s*[-–—]\s*Wikimedia Commons\s*$/i,"");
+  var a=(artista||"").toLowerCase();
+  var partes=t.split(/\s+[-–—]\s+/).map(function(p){return p.trim()}).filter(Boolean);
+  if(partes.length>1){
+    var resto=partes.filter(function(p){var l=p.toLowerCase();return !(a&&(a.indexOf(l)>-1||l.indexOf(a)>-1))});
+    if(resto.length)partes=resto;
+  }
+  t=partes[0]||t;
+  t=t.replace(/\s*\([^()]*\d[^()]*\)\s*$/,"").trim();
+  if(t.length>90)t=t.split(/[:;.]\s/)[0];
+  if(t.length>90)t=t.slice(0,90).replace(/\s+\S*$/,"")+"…";
+  return t||"Sem título";
+}
+function dados(pg){
+  var ii=(pg.imageinfo||[])[0]||{},m=ii.extmetadata||{};
+  var v=function(k){return limpar(m[k]&&m[k].value)};
+  return{titulo:nomeObra(v("ObjectName")||pg.title.replace(/^File:/,""),v("Artist")),artista:v("Artist"),data:v("DateTimeOriginal"),licenca:v("LicenseShortName"),descricao:v("ImageDescription"),
+    thumb:seguro(ii.thumburl),url:seguro(ii.url),w:ii.width,h:ii.height,mime:ii.mime,pagina:seguro(ii.descriptionurl),titleRaw:pg.title};
+}
+function show(v){$("#busca").hidden=v!=="busca";$("#obra").hidden=v!=="obra";window.scrollTo(0,0)}
+$("#home").onclick=$("#voltar").onclick=function(){show("busca")};
 
-// versão ampliada: 1920 px (padrão do Wikimedia); se o original for menor que isso, usa o próprio original
-const urlGrande = ii => ii.width <= GRANDE ? ii.url : ii.thumburl.replace('/' + LARGURA + 'px-', '/' + GRANDE + 'px-');
+async function pesquisar(termo){
+  var d=await commons({generator:"search",gsrnamespace:6,gsrlimit:30,gsrsearch:termo,iiurlwidth:480});
+  return Object.values((d.query&&d.query.pages)||{}).sort(function(a,b){return a.index-b.index}).map(dados)
+    .filter(function(o){return o.thumb&&(o.mime==="image/jpeg"||o.mime==="image/png")&&o.w>=600});
+}
 
-const chave = n => n.replace(/^File:/, '').replace(/_/g, ' ');
-
-async function carregarPinturas(){
+async function buscar(q){
+  var b=$("#go");b.disabled=true;$("#status").textContent="Procurando no Wikimedia Commons…";$("#res").textContent="";
   try{
-    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-    if (c && Date.now() - c.t < TTL && c.lista.length >= QTD) return c.lista;
-  }catch{}
-
-  // 1) quais pinturas
-  const r1 = await fetch(SPARQL + '?format=json&query=' + encodeURIComponent(consulta));
-  if (!r1.ok) throw new Error('Wikidata ' + r1.status);
-  const obras = new Map();
-  for (const l of (await r1.json()).results.bindings){
-    const nome = decodeURIComponent((l.img.value.split('/Special:FilePath/')[1] || ''));
-    if (/\.(jpe?g|png)$/i.test(nome) && !obras.has(chave(nome)))
-      obras.set(chave(nome), {titulo: l.titulo.value, autor: l.autor.value, nome});
-  }
-
-  // 2) miniatura + licença no Commons
-  const titulos = [...obras.values()].slice(0, 45).map(o => 'File:' + o.nome).join('|');
-  const r2 = await fetch(COMMONS + '?' + new URLSearchParams({
-    action: 'query', format: 'json', origin: '*', prop: 'imageinfo',
-    iiprop: 'url|size|extmetadata', iiurlwidth: LARGURA,
-    iiextmetadatafilter: 'Copyrighted|LicenseShortName', titles: titulos
-  }));
-  if (!r2.ok) throw new Error('Commons ' + r2.status);
-  const paginas = Object.values((await r2.json()).query.pages || {});
-
-  const lista = paginas.map(p => {
-    const ii = p.imageinfo && p.imageinfo[0];
-    if (!ii || !ii.thumburl || !ii.width || !ii.height) return null;
-    const m = ii.extmetadata || {};
-    const publico = (m.Copyrighted && m.Copyrighted.value === 'False') ||
-                    /public domain|cc0|pd-/i.test((m.LicenseShortName && m.LicenseShortName.value) || '');
-    const ratio = ii.width / ii.height;
-    if (!publico || ratio < 0.5 || ratio > 2.2) return null;       // só PD e sem panorâmicas extremas
-    const o = obras.get(chave(p.title));
-    return {alt: o ? o.titulo + ', ' + o.autor : chave(p.title), src: ii.thumburl, grande: urlGrande(ii), ratio};
-  }).filter(Boolean);
-
-  if (lista.length < QTD) throw new Error('poucas pinturas: ' + lista.length);
-  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({t: Date.now(), lista})); }catch{}
-  return lista;
+    var pgs=await pesquisar(q+" painting filetype:bitmap");
+    if(!pgs.length){$("#status").textContent="Nenhuma pintura encontrada. Tente outro termo.";b.disabled=false;return}
+    $("#status").textContent=pgs.length+" obras encontradas para “"+q+"”.";
+    pgs.forEach(function(o){
+      var c=document.createElement("button");c.className="card";
+      var im=document.createElement("img");im.src=o.thumb;im.alt=o.titulo;im.loading="lazy";
+      c.setAttribute("aria-label",o.titulo);
+      c.append(im);c.onclick=function(){abrir(o)};$("#res").append(c);
+    });
+  }catch(e){$("#status").textContent="Não foi possível acessar o Wikimedia Commons agora. Tente novamente."}
+  b.disabled=false;
 }
 
-// cria os 15 cards vazios (o layout já existe antes das imagens chegarem)
-const cards = Array.from({length: QTD}, (_, i) => {
-  const a = document.createElement('button'); a.type = 'button';
-  a.className = 'card c' + (i + 1);
-  board.appendChild(a);
-  return a;
+async function abrir(o){
+  $("#titulo").textContent=o.titulo;$("#resumo").textContent=o.descricao;
+  var f=$("#foto");f.src=o.thumb;f.alt=o.titulo;
+  f.onclick=function(){abrirViewer(o)};
+  $("#credito").textContent="Foto via Wikimedia Commons"+(o.licenca?" · "+o.licenca:"")+" · Clique na imagem para ampliar";
+  var m=$("#meta");m.textContent="";
+  [["Artista",o.artista],["Data",o.data],["Resolução do arquivo",o.w+" × "+o.h+" px"],["Licença",o.licenca]].forEach(function(r){
+    if(!r[1])return;var a=document.createElement("dt");a.textContent=r[0];var b=document.createElement("dd");b.textContent=r[1];m.append(a,b)});
+  show("obra");
+  try{ // versão maior da imagem
+    var d=await commons({titles:o.titleRaw,iiurlwidth:1400});
+    var pg=Object.values(d.query.pages)[0],u=seguro(pg.imageinfo[0].thumburl);
+    if(u)f.src=u;
+  }catch(e){}
+}
+
+var V=$("#viewer"),S=$("#stage"),VI=$("#vimg"),sc=1,px=0,py=0,atual=null,arrastou=false,drag=null;
+function aplicar(){VI.style.transform="translate("+px+"px,"+py+"px) scale("+sc+")"}
+function reset(){sc=1;px=0;py=0;aplicar()}
+function fechar(){V.hidden=true;document.body.style.overflow="";VI.removeAttribute("src")}
+async function abrirViewer(o){
+  atual=o;reset();VI.src=o.thumb;VI.alt=o.titulo;
+  $("#vcred").textContent="Foto via Wikimedia Commons"+(o.licenca?" · "+o.licenca:"");
+  V.hidden=false;document.body.style.overflow="hidden";$("#vx").focus();
+  try{
+    var d=await commons({titles:o.titleRaw,iiurlwidth:2000});
+    var u=seguro(Object.values(d.query.pages)[0].imageinfo[0].thumburl);
+    if(u&&atual===o&&!V.hidden)VI.src=u;
+  }catch(e){}
+}
+S.addEventListener("wheel",function(e){
+  e.preventDefault();
+  var r=S.getBoundingClientRect(),cx=e.clientX-(r.left+r.width/2),cy=e.clientY-(r.top+r.height/2);
+  var s2=Math.min(8,Math.max(.5,sc*(e.deltaY<0?1.15:1/1.15)));
+  px=cx-(cx-px)*(s2/sc);py=cy-(cy-py)*(s2/sc);sc=s2;aplicar();
+},{passive:false});
+S.addEventListener("pointerdown",function(e){
+  if(e.button!==0)return;
+  drag={x:e.clientX-px,y:e.clientY-py,sx:e.clientX,sy:e.clientY};arrastou=false;
+  S.setPointerCapture(e.pointerId);S.classList.add("drag");
 });
+S.addEventListener("pointermove",function(e){
+  if(!drag)return;
+  if(Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy)>4)arrastou=true;
+  px=e.clientX-drag.x;py=e.clientY-drag.y;aplicar();
+});
+function soltar(){drag=null;S.classList.remove("drag")}
+S.addEventListener("pointerup",soltar);S.addEventListener("pointercancel",soltar);
+S.addEventListener("click",function(e){
+  var r=VI.getBoundingClientRect();
+  var dentro=e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+  if(!dentro&&!arrastou)fechar();
+});
+S.addEventListener("dblclick",reset);
+$("#vx").onclick=fechar;$("#vreset").onclick=reset;
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!V.hidden)fechar()});
 
-function mostrar(card, p, i){
-  card.onclick = () => abrir(p);
-  card.setAttribute('aria-label', p.alt);
-  const img = new Image();
-  img.alt = ''; img.decoding = 'async'; img.loading = i < 6 ? 'eager' : 'lazy';
-  img.onload  = () => img.classList.add('ok');
-  img.onerror = () => img.remove();
-  img.src = p.src;
-  card.appendChild(img);
-}
-
-// encaixa cada pintura no card de proporção mais parecida (vertical com vertical, larga com larga)
-function distribuir(lista){
-  const livres = [...lista];
-  cards.map(c => ({c, r: c.clientWidth / Math.max(c.clientHeight, 1)}))
-       .sort((a, b) => Math.abs(Math.log(b.r)) - Math.abs(Math.log(a.r)))
-       .forEach(({c, r}, i) => {
-         let melhor = 0, dist = Infinity;
-         livres.forEach((p, k) => { const d = Math.abs(Math.log(p.ratio / r)); if (d < dist){ dist = d; melhor = k; } });
-         mostrar(c, livres.splice(melhor, 1)[0], i);
-       });
-}
-
-/* ===== lightbox: a pintura ampliada na mesma página ===== */
-const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img');
-function abrir(p){
-  lbImg.alt = p.alt;
-  lbImg.src = p.src;                               // mostra a miniatura na hora...
-  lb.showModal();
-  const g = new Image();                           // ...e troca pela versão grande quando chegar
-  g.onload = () => { if (lbImg.alt === p.alt) lbImg.src = p.grande; };
-  g.src = p.grande;
-}
-lb.addEventListener('click', () => lb.close());    // clique em qualquer lugar (ou Esc) fecha
-
-carregarPinturas()
-  .then(distribuir)
-  .catch(e => { console.error(e); status.textContent = 'Não foi possível carregar as pinturas agora. Tente recarregar a página.'; });
-
-/* ===== busca com animação de digitação no placeholder ===== */
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-const q = document.getElementById('q');
-const frases = ['uma pintura…', 'uma personalidade…', 'um evento histórico…'];
-(async function loop(){
-  if (reduce){ q.placeholder = 'Buscar no Arandu'; return; }
-  let i = 0;
-  while (true){
-    const f = 'Buscar ' + frases[i++ % frases.length];
-    for (let n = 1; n <= f.length; n++){ q.placeholder = f.slice(0, n); await sleep(55); }
-    await sleep(1400);
-    for (let n = f.length; n >= 7; n--){ q.placeholder = f.slice(0, n); await sleep(22); }
-  }
+$("#f").onsubmit=function(e){e.preventDefault();buscar($("#q").value.trim())};
+document.querySelectorAll(".chip").forEach(function(c){c.onclick=function(){$("#q").value=c.textContent;buscar(c.textContent)}});
 })();
-
-document.querySelectorAll('.rail button').forEach(b => b.addEventListener('click', () => {
-  document.querySelectorAll('.rail button').forEach(x => x.setAttribute('aria-pressed', x === b));
-}));
 </script>
 </body>
 </html>
