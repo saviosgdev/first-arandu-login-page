@@ -26,11 +26,14 @@ input{flex:1;min-width:0;padding:14px 18px;border-radius:999px;border:1px solid 
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .chip{padding:6px 14px;border:1px solid var(--line);background:var(--surface);border-radius:999px;font-size:14px;cursor:pointer;color:var(--ink)}
 .chip:hover{border-color:var(--ink)}
+.mais-wrap{text-align:center;padding:0 0 72px}
+.mais-wrap .btn{padding:14px 32px}
 .msg{color:var(--muted);margin:24px 0}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:8px 0 72px}
-.card{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0;cursor:pointer;overflow:hidden;color:var(--ink)}
+.grid{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:8px 0 32px}
+.grid::after{content:"";flex:999999 1 0}
+.card{background:#fff;border:1px solid var(--line);border-radius:2px;padding:6px;cursor:pointer;color:var(--ink);box-shadow:0 2px 8px rgba(20,20,19,.12)}
 .card:hover{border-color:var(--ink)}
-.card img{display:block;width:100%;height:280px;object-fit:cover;background:var(--media)}
+.card img{display:block;width:100%;height:auto;background:var(--media)}
 .card .t{padding:14px 18px 18px}
 .card h3{margin:0 0 4px;font-size:17px;font-weight:500;line-height:1.3}
 .card p{margin:0;font-size:13px;color:var(--muted)}
@@ -54,12 +57,12 @@ footer p{margin:0;color:#9c9b95;max-width:60ch}
 #vbar button{padding:8px 16px;border-radius:999px;border:1px solid #FAF9F5;background:transparent;color:#FAF9F5;cursor:pointer;font-size:14px}
 #vbar .acoes{display:flex;gap:8px}
 [hidden]{display:none!important}
-@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.detail{grid-template-columns:1fr}}
-@media(max-width:560px){.grid{grid-template-columns:1fr}.hero{padding-top:48px}form{flex-direction:column}}
+@media(max-width:900px){.detail{grid-template-columns:1fr}}
+@media(max-width:560px){.hero{padding-top:48px}form{flex-direction:column}}
 </style>
 </head>
 <body>
-<header><div class="wrap"><button class="logo" id="home">Arandu</button></div></header>
+<header><div class="wrap"><button class="logo" id="home">Museu Meridiano</button></div></header>
 
 <main class="wrap">
   <section id="busca">
@@ -71,6 +74,7 @@ footer p{margin:0;color:#9c9b95;max-width:60ch}
     </div>
     <p class="msg sans" id="status"></p>
     <div class="grid" id="res"></div>
+    <div class="mais-wrap"><button class="btn" id="mais" type="button" hidden>Carregar mais</button></div>
   </section>
 
   <section id="obra" hidden>
@@ -135,27 +139,70 @@ function dados(pg){
 function show(v){$("#busca").hidden=v!=="busca";$("#obra").hidden=v!=="obra";window.scrollTo(0,0)}
 $("#home").onclick=$("#voltar").onclick=function(){show("busca")};
 
-async function pesquisar(termo){
-  var d=await commons({generator:"search",gsrnamespace:6,gsrlimit:30,gsrsearch:termo,iiurlwidth:480});
-  return Object.values((d.query&&d.query.pages)||{}).sort(function(a,b){return a.index-b.index}).map(dados)
+async function pesquisar(termo,offset){
+  var p={generator:"search",gsrnamespace:6,gsrlimit:50,gsrsearch:termo,iiurlwidth:640};
+  if(offset)p.gsroffset=offset;
+  var d=await commons(p);
+  var lista=Object.values((d.query&&d.query.pages)||{}).sort(function(a,b){return a.index-b.index}).map(dados)
     .filter(function(o){return o.thumb&&(o.mime==="image/jpeg"||o.mime==="image/png")&&o.w>=600});
+  return{lista:lista,next:d.continue&&d.continue.gsroffset!=null?d.continue.gsroffset:null};
+}
+
+var reqId=0,termo="",termoBusca="",proximo=null,total=0,vistos={};
+function atualizarStatus(){$("#status").textContent=total+" obras encontradas para “"+termo+"”."}
+
+function addCards(pgs){
+  var H=window.innerWidth<560?130:190;
+  pgs.forEach(function(o){
+    if(vistos[o.titleRaw])return;vistos[o.titleRaw]=1;
+    var i=total++;
+    var c=document.createElement("button");c.className="card";
+    var esc=0.75+(((i*7+3)%10)/9)*0.7,bw=Math.round(Math.min(o.w/o.h*H*esc,520));
+    c.style.flex=bw+" 1 "+bw+"px";c.style.maxWidth=Math.min(Math.round(bw*1.5),window.innerWidth-48)+"px";
+    var im=document.createElement("img");im.style.aspectRatio=o.w+" / "+o.h;im.src=o.thumb;im.alt=o.titulo;im.loading="lazy";
+    c.setAttribute("aria-label",o.titulo);
+    c.append(im);c.onclick=function(){abrir(o)};$("#res").append(c);
+  });
+}
+
+// busca lotes até achar ao menos um card novo (o filtro pode zerar um lote inteiro)
+async function carregarLote(id){
+  var novos=0,tentativas=0;
+  while(tentativas++<4){
+    var r=await pesquisar(termoBusca,proximo);
+    if(id!==reqId)return false;
+    proximo=r.next;
+    var antes=total;addCards(r.lista);novos=total-antes;
+    if(novos>0||proximo==null)break;
+  }
+  return novos>0;
 }
 
 async function buscar(q){
-  var b=$("#go");b.disabled=true;$("#status").textContent="Procurando no Wikimedia Commons…";$("#res").textContent="";
+  var id=++reqId;
+  var b=$("#go");b.disabled=true;$("#mais").hidden=true;
+  $("#status").textContent="Procurando no Wikimedia Commons…";$("#res").textContent="";
+  termo=q;termoBusca=q+" painting filetype:bitmap";proximo=null;total=0;vistos={};
   try{
-    var pgs=await pesquisar(q+" painting filetype:bitmap");
-    if(!pgs.length){$("#status").textContent="Nenhuma pintura encontrada. Tente outro termo.";b.disabled=false;return}
-    $("#status").textContent=pgs.length+" obras encontradas para “"+q+"”.";
-    pgs.forEach(function(o){
-      var c=document.createElement("button");c.className="card";
-      var im=document.createElement("img");im.src=o.thumb;im.alt=o.titulo;im.loading="lazy";
-      c.setAttribute("aria-label",o.titulo);
-      c.append(im);c.onclick=function(){abrir(o)};$("#res").append(c);
-    });
-  }catch(e){$("#status").textContent="Não foi possível acessar o Wikimedia Commons agora. Tente novamente."}
-  b.disabled=false;
+    var ok=await carregarLote(id);
+    if(id!==reqId)return;
+    if(!ok){$("#status").textContent="Nenhuma pintura encontrada. Tente outro termo."}
+    else{atualizarStatus();$("#mais").hidden=proximo==null}
+  }catch(e){if(id===reqId)$("#status").textContent="Não foi possível acessar o Wikimedia Commons agora. Tente novamente."}
+  if(id===reqId)b.disabled=false;
 }
+
+async function carregarMais(){
+  var id=reqId,m=$("#mais");
+  m.disabled=true;m.textContent="Carregando…";
+  try{
+    await carregarLote(id);
+    if(id!==reqId)return;
+    atualizarStatus();m.hidden=proximo==null;
+  }catch(e){if(id===reqId)$("#status").textContent="Não foi possível carregar mais obras. Tente novamente."}
+  if(id===reqId){m.disabled=false;m.textContent="Carregar mais"}
+}
+$("#mais").onclick=carregarMais;
 
 async function abrir(o){
   $("#titulo").textContent=o.titulo;$("#resumo").textContent=o.descricao;
