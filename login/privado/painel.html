@@ -6,64 +6,40 @@
 <title>Arandu</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600&family=Poppins:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0c0d0b; --panel:#131411; --panel-2:#1a1b17; --line:#2a2b25;
-  --text:#ece8dd; --muted:#8c8a7f; --accent:#c9472b;
-  --pintura:linear-gradient(150deg,#8a5a1c,#2b1a08);
-  --pessoa:linear-gradient(150deg,#2f3a63,#0e1020);
-  --evento:linear-gradient(150deg,#3d5a3a,#101a10);
-  --gap:10px;
-}
+:root{--bg:#0c0d0b;--panel:#131411;--line:#2a2b25;--text:#ece8dd;--muted:#8c8a7f;--accent:#c9472b;--gap:10px}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
-body{background:var(--bg);color:var(--text);font-family:Poppins,system-ui,sans-serif;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
-a,button{color:inherit;font:inherit}
+body{background:var(--bg);color:var(--text);font-family:Poppins,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* barra superior com aba (como no rascunho) */
-.topbar{height:38px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;padding-left:8px;flex:none}
-.tab{height:30px;width:150px;background:var(--panel-2);border:1px solid var(--line);border-bottom:0;display:flex;align-items:center;padding-left:14px;clip-path:polygon(0 0,82% 0,100% 100%,0 100%)}
-.tab svg{width:16px;height:16px;stroke:var(--text)}
+.app{height:100%;min-height:640px;display:grid;grid-template-columns:300px 1fr}
 
-.app{flex:1;display:grid;grid-template-columns:300px 1fr;min-height:0}
-
-/* sidebar: trilho + painel */
+/* sidebar: logo + busca no topo, trilho e painel embaixo */
 .side{border-right:1px solid var(--line);display:grid;grid-template-columns:84px 1fr;grid-template-rows:auto 1fr;min-height:0}
 .brand{grid-column:1/-1;padding:18px 18px 14px}
-.logo{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:54px;line-height:1;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1.6px var(--text);display:block;margin-bottom:14px}
+.logo{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:54px;line-height:1;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1.6px var(--text);display:block;margin-bottom:14px;text-decoration:none}
 .search{display:flex;align-items:center;gap:8px;border:1.5px solid var(--text);border-radius:999px;padding:7px 14px;background:var(--panel)}
 .search svg{width:15px;height:15px;stroke:var(--text);flex:none}
 .search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:400 13px Poppins,sans-serif}
 .search input::placeholder{color:var(--muted)}
 .rail{border-top:1px solid var(--line);border-right:1px solid var(--line);padding:14px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
-.rail button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:11px;color:var(--muted);transition:border-color .15s,color .15s}
+.rail button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font:500 11px Poppins,sans-serif;color:var(--muted);transition:border-color .15s,color .15s}
 .rail button[aria-pressed="true"]{border-color:var(--accent);color:var(--text)}
 .list{border-top:1px solid var(--line);padding:16px 14px;overflow:auto}
 .list h2{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px}
 .list ul{list-style:none;display:grid;gap:8px}
 .list li{height:44px;border-radius:10px;background:var(--panel);border:1px solid var(--line)}
 
-/* grid bento: 12x12, igual ao desenho */
-.board{padding:var(--gap);display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(12,minmax(0,1fr));gap:var(--gap);min-height:640px;min-width:0}
-.card{position:relative;overflow:hidden;border-radius:14px;border:1px solid var(--line);background:var(--panel);cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;padding:12px 14px;transition:border-color .15s,transform .15s}
-.card:hover{border-color:#55564c}
-.card::before{content:"";position:absolute;inset:0;opacity:.9;z-index:0}
-.card[data-type="pintura"]::before{background:var(--pintura)}
-.card[data-type="personalidade"]::before{background:var(--pessoa)}
-.card[data-type="evento"]::before{background:var(--evento)}
-.card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65),transparent 60%);z-index:0}
-.card>*{position:relative;z-index:1}
-.tag{font-size:11px;font-weight:500;color:#d9d5c8;margin-bottom:4px}
-.title{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:clamp(14px,1.45vw,22px);line-height:1.15}
-.big .title{font-size:clamp(20px,2.3vw,34px)}
-.desc{font-size:12px;color:#cfcbbd;margin-top:6px;max-width:34ch}
-.small .desc,.small .tag{display:none}
-.typing::after{content:"▍";margin-left:2px;color:var(--accent);animation:blink 1s steps(1) infinite}
-@keyframes blink{50%{opacity:0}}
+/* grid 12x12, igual ao desenho: cada card é só a pintura */
+.board{padding:var(--gap);display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(12,minmax(0,1fr));gap:var(--gap);min-width:0;min-height:0}
+.card{display:block;position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(150deg,#26251f,#121310);border:1px solid var(--line);cursor:pointer;transition:border-color .2s}
+.card:hover{border-color:#6a6b5f}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease,opacity .4s;opacity:0}
+.card img.ok{opacity:1}
+.card:hover img{transform:scale(1.04)}
 
-/* posições (linha-início / coluna-início / linha-fim / coluna-fim) */
 .c1{grid-area:1/1/4/5}.c2{grid-area:4/1/7/3}.c3{grid-area:4/3/7/5}
 .c4{grid-area:7/1/10/5}.c5{grid-area:10/1/13/5}
 .c6{grid-area:1/5/5/8}.c7{grid-area:1/8/3/10}.c8{grid-area:3/8/5/10}
@@ -71,88 +47,178 @@ button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid v
 .c12{grid-area:7/10/13/13}.c13{grid-area:9/5/11/7}.c14{grid-area:11/5/13/7}
 .c15{grid-area:9/7/13/10}
 
+button.card{padding:0;font:inherit;color:inherit;text-align:left}
+dialog#lightbox{border:0;padding:0;background:transparent;max-width:none;max-height:none;width:100%;height:100%;cursor:zoom-out}
+dialog#lightbox[open]{display:flex;align-items:center;justify-content:center;animation:surge .25s ease}
+dialog#lightbox::backdrop{background:rgba(6,6,5,.95)}
+#lb-img{max-width:96vw;max-height:94vh;object-fit:contain;border-radius:4px;box-shadow:0 10px 60px rgba(0,0,0,.6)}
+.fechar{position:fixed;top:16px;right:16px;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:rgba(19,20,17,.85);color:var(--text);cursor:pointer;display:grid;place-items:center}
+.fechar:hover{border-color:var(--text)}
+.fechar svg{width:18px;height:18px;stroke:currentColor}
+@keyframes surge{from{opacity:0}to{opacity:1}}
+.credito,.status{font-size:11px;line-height:1.5;color:var(--muted);margin-top:16px}
+.credito a{color:var(--text)}
+.status:empty{display:none}
 @media(max-width:1000px){
-  body{height:auto}
-  .app{grid-template-columns:1fr}
-  .side{border-right:0;border-bottom:1px solid var(--line);grid-template-rows:auto auto}
+  .app{height:auto;grid-template-columns:1fr}
+  .side{grid-template-columns:1fr;border-right:0;border-bottom:1px solid var(--line)}
   .rail{flex-direction:row;padding:10px 14px;border-right:0}
   .list{display:none}
-  .side{grid-template-columns:1fr}
-  .board{grid-template-columns:1fr 1fr;grid-template-rows:none;grid-auto-rows:150px;min-height:0}
+  .board{grid-template-columns:1fr 1fr;grid-template-rows:none;grid-auto-rows:170px}
   .card{grid-area:auto!important}
-  .big{grid-column:span 2}
+  .c1,.c10,.c4,.c5{grid-column:span 2}
 }
-@media(prefers-reduced-motion:reduce){.typing::after{animation:none}*{transition:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-
-<div class="topbar">
-  <div class="tab" aria-hidden="true">
-    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l5-4 5 4M3 12l5-4 5 4"/></svg>
-  </div>
-</div>
-
 <div class="app">
   <aside class="side">
     <div class="brand">
       <a href="#" class="logo" aria-label="Arandu">ARANDU</a>
       <label class="search">
         <svg viewBox="0 0 16 16" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
-        <input id="q" type="search" placeholder="" aria-label="Buscar">
+        <input id="q" type="search" aria-label="Buscar">
       </label>
     </div>
     <nav class="rail" aria-label="Categorias">
-      <button aria-pressed="true" title="Pinturas">Pintura</button>
-      <button aria-pressed="false" title="Personalidades">Pessoas</button>
-      <button aria-pressed="false" title="Eventos históricos">Eventos</button>
+      <button aria-pressed="true">Pintura</button>
+      <button aria-pressed="false">Pessoas</button>
+      <button aria-pressed="false">Eventos</button>
     </nav>
-    <div class="list">
-      <h2>Recentes</h2>
-      <ul><li></li><li></li><li></li><li></li><li></li></ul>
+    <div class="list"><h2>Recentes</h2><ul><li></li><li></li><li></li><li></li><li></li></ul>
+      <p class="status" id="status" role="status"></p>
+      <p class="credito">Pinturas em domínio público via <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a>.</p>
     </div>
   </aside>
-
-  <main class="board" id="board">
-    <article class="card c1 big"  data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="Abaporu, Tarsila do Amaral" data-desc="1928 · O quadro que inspirou o Movimento Antropofágico."></article>
-    <article class="card c2 small" data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Dandara"></article>
-    <article class="card c3 small" data-type="evento"      tabindex="0" data-tag="Evento histórico" data-title="Revolta dos Malês"></article>
-    <article class="card c4"      data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Machado de Assis" data-desc="Fundador da Academia Brasileira de Letras."></article>
-    <article class="card c5"      data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="Operários" data-desc="Tarsila do Amaral, 1933."></article>
-    <article class="card c6"      data-type="evento"       tabindex="0" data-tag="Evento histórico" data-title="Guerra Guaranítica" data-desc="1754–1756 · Sepé Tiaraju e os povos das Missões."></article>
-    <article class="card c7 small" data-type="pintura"     tabindex="0" data-tag="Pintura" data-title="Guernica"></article>
-    <article class="card c8 small" data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Frida Kahlo"></article>
-    <article class="card c9"      data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Sepé Tiaraju" data-desc="Líder guarani nas Missões."></article>
-    <article class="card c10 big" data-type="evento"       tabindex="0" data-tag="Evento histórico" data-title="Semana de Arte Moderna" data-desc="1922 · O marco do modernismo brasileiro."></article>
-    <article class="card c11"     data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="A Noite Estrelada"></article>
-    <article class="card c12"     data-type="evento"       tabindex="0" data-tag="Evento histórico" data-title="Independência do Brasil" data-desc="7 de setembro de 1822."></article>
-    <article class="card c13 small" data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Carolina de Jesus"></article>
-    <article class="card c14 small" data-type="evento"     tabindex="0" data-tag="Evento histórico" data-title="Queda da Bastilha"></article>
-    <article class="card c15"     data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="Independência ou Morte" data-desc="Pedro Américo, 1888."></article>
-  </main>
+  <main class="board" id="board"></main>
 </div>
 
-<script>
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+<dialog id="lightbox" aria-label="Pintura ampliada">
+  <button class="fechar" type="button" aria-label="Fechar">
+    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l10 10M13 3L3 13"/></svg>
+  </button>
+  <img id="lb-img" alt="">
+</dialog>
 
-// monta os cards e digita o título (animação de escrita com teclado)
-async function type(el, text, speed = 38){
-  if (reduce){ el.textContent = text; return; }
-  el.classList.add('typing'); el.textContent = '';
-  for (const ch of text){ el.textContent += ch; await sleep(speed + Math.random()*30); }
-  el.classList.remove('typing');
+<script>
+/* ===== AS PINTURAS: Wikidata (descobre quais) + Wikimedia Commons (miniatura e licença) =====
+   1) Wikidata: pinturas famosas, feitas antes de 1900, de pintores mortos antes de 1950.
+   2) Commons: devolve a miniatura (já redimensionada pelo Wikimedia) e a licença de cada arquivo;
+      só ficam as marcadas como domínio público. Nada de imagem fica no seu código. */
+const SPARQL  = 'https://query.wikidata.org/sparql';
+const COMMONS = 'https://commons.wikimedia.org/w/api.php';
+const CACHE_KEY = 'arandu:pinturas:v3', TTL = 6 * 3600 * 1000, QTD = 15;
+const LARGURA = 960, GRANDE = 1920;                      // um dos tamanhos padrão de miniatura do Wikimedia
+const board  = document.getElementById('board');
+const status = document.getElementById('status');
+
+const consulta = `
+SELECT ?img ?titulo ?autor WHERE {
+  ?obra wdt:P31 wd:Q3305213; wdt:P18 ?img; wdt:P571 ?data; wdt:P170 ?pintor; wikibase:sitelinks ?links.
+  ?pintor wdt:P570 ?morte.
+  FILTER(YEAR(?data) < 1900 && YEAR(?morte) < 1950 && ?links >= 12)
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "pt,en". ?obra rdfs:label ?titulo. ?pintor rdfs:label ?autor. }
+} ORDER BY RAND() LIMIT 60`;
+
+// versão ampliada: 1920 px (padrão do Wikimedia); se o original for menor que isso, usa o próprio original
+const urlGrande = ii => ii.width <= GRANDE ? ii.url : ii.thumburl.replace('/' + LARGURA + 'px-', '/' + GRANDE + 'px-');
+
+const chave = n => n.replace(/^File:/, '').replace(/_/g, ' ');
+
+async function carregarPinturas(){
+  try{
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+    if (c && Date.now() - c.t < TTL && c.lista.length >= QTD) return c.lista;
+  }catch{}
+
+  // 1) quais pinturas
+  const r1 = await fetch(SPARQL + '?format=json&query=' + encodeURIComponent(consulta));
+  if (!r1.ok) throw new Error('Wikidata ' + r1.status);
+  const obras = new Map();
+  for (const l of (await r1.json()).results.bindings){
+    const nome = decodeURIComponent((l.img.value.split('/Special:FilePath/')[1] || ''));
+    if (/\.(jpe?g|png)$/i.test(nome) && !obras.has(chave(nome)))
+      obras.set(chave(nome), {titulo: l.titulo.value, autor: l.autor.value, nome});
+  }
+
+  // 2) miniatura + licença no Commons
+  const titulos = [...obras.values()].slice(0, 45).map(o => 'File:' + o.nome).join('|');
+  const r2 = await fetch(COMMONS + '?' + new URLSearchParams({
+    action: 'query', format: 'json', origin: '*', prop: 'imageinfo',
+    iiprop: 'url|size|extmetadata', iiurlwidth: LARGURA,
+    iiextmetadatafilter: 'Copyrighted|LicenseShortName', titles: titulos
+  }));
+  if (!r2.ok) throw new Error('Commons ' + r2.status);
+  const paginas = Object.values((await r2.json()).query.pages || {});
+
+  const lista = paginas.map(p => {
+    const ii = p.imageinfo && p.imageinfo[0];
+    if (!ii || !ii.thumburl || !ii.width || !ii.height) return null;
+    const m = ii.extmetadata || {};
+    const publico = (m.Copyrighted && m.Copyrighted.value === 'False') ||
+                    /public domain|cc0|pd-/i.test((m.LicenseShortName && m.LicenseShortName.value) || '');
+    const ratio = ii.width / ii.height;
+    if (!publico || ratio < 0.5 || ratio > 2.2) return null;       // só PD e sem panorâmicas extremas
+    const o = obras.get(chave(p.title));
+    return {alt: o ? o.titulo + ', ' + o.autor : chave(p.title), src: ii.thumburl, grande: urlGrande(ii), ratio};
+  }).filter(Boolean);
+
+  if (lista.length < QTD) throw new Error('poucas pinturas: ' + lista.length);
+  try{ localStorage.setItem(CACHE_KEY, JSON.stringify({t: Date.now(), lista})); }catch{}
+  return lista;
 }
-document.querySelectorAll('.card').forEach((c, i) => {
-  c.innerHTML = '<span class="tag"></span><h3 class="title"></h3>' + (c.dataset.desc ? '<p class="desc"></p>' : '');
-  c.querySelector('.tag').textContent = c.dataset.tag;
-  if (c.dataset.desc) c.querySelector('.desc').textContent = c.dataset.desc;
-  const t = c.querySelector('.title');
-  t.setAttribute('aria-label', c.dataset.title);
-  setTimeout(() => type(t, c.dataset.title), 250 + i * 160);
+
+// cria os 15 cards vazios (o layout já existe antes das imagens chegarem)
+const cards = Array.from({length: QTD}, (_, i) => {
+  const a = document.createElement('button'); a.type = 'button';
+  a.className = 'card c' + (i + 1);
+  board.appendChild(a);
+  return a;
 });
 
-// placeholder da busca alternando entre os três tipos
+function mostrar(card, p, i){
+  card.onclick = () => abrir(p);
+  card.setAttribute('aria-label', p.alt);
+  const img = new Image();
+  img.alt = ''; img.decoding = 'async'; img.loading = i < 6 ? 'eager' : 'lazy';
+  img.onload  = () => img.classList.add('ok');
+  img.onerror = () => img.remove();
+  img.src = p.src;
+  card.appendChild(img);
+}
+
+// encaixa cada pintura no card de proporção mais parecida (vertical com vertical, larga com larga)
+function distribuir(lista){
+  const livres = [...lista];
+  cards.map(c => ({c, r: c.clientWidth / Math.max(c.clientHeight, 1)}))
+       .sort((a, b) => Math.abs(Math.log(b.r)) - Math.abs(Math.log(a.r)))
+       .forEach(({c, r}, i) => {
+         let melhor = 0, dist = Infinity;
+         livres.forEach((p, k) => { const d = Math.abs(Math.log(p.ratio / r)); if (d < dist){ dist = d; melhor = k; } });
+         mostrar(c, livres.splice(melhor, 1)[0], i);
+       });
+}
+
+/* ===== lightbox: a pintura ampliada na mesma página ===== */
+const lb = document.getElementById('lightbox'), lbImg = document.getElementById('lb-img');
+function abrir(p){
+  lbImg.alt = p.alt;
+  lbImg.src = p.src;                               // mostra a miniatura na hora...
+  lb.showModal();
+  const g = new Image();                           // ...e troca pela versão grande quando chegar
+  g.onload = () => { if (lbImg.alt === p.alt) lbImg.src = p.grande; };
+  g.src = p.grande;
+}
+lb.addEventListener('click', () => lb.close());    // clique em qualquer lugar (ou Esc) fecha
+
+carregarPinturas()
+  .then(distribuir)
+  .catch(e => { console.error(e); status.textContent = 'Não foi possível carregar as pinturas agora. Tente recarregar a página.'; });
+
+/* ===== busca com animação de digitação no placeholder ===== */
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
 const q = document.getElementById('q');
 const frases = ['uma pintura…', 'uma personalidade…', 'um evento histórico…'];
 (async function loop(){
@@ -166,7 +232,6 @@ const frases = ['uma pintura…', 'uma personalidade…', 'um evento histórico�
   }
 })();
 
-// filtro de categoria no trilho (só visual por enquanto)
 document.querySelectorAll('.rail button').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('.rail button').forEach(x => x.setAttribute('aria-pressed', x === b));
 }));
