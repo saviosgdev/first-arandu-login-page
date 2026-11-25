@@ -1,56 +1,175 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Painel</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: #18191d;
-      color: #e5e7eb;
-      font-family: Inter, sans-serif;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 32px;
-      background: #1f2230;
-      border-bottom: 1px solid #2b2f40;
-    }
-    main { padding: 48px 32px; }
-    button {
-      background: #6280d1;
-      color: #fff;
-      border: 0;
-      border-radius: 6px;
-      padding: 10px 18px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arandu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0d0b; --panel:#131411; --panel-2:#1a1b17; --line:#2a2b25;
+  --text:#ece8dd; --muted:#8c8a7f; --accent:#c9472b;
+  --pintura:linear-gradient(150deg,#8a5a1c,#2b1a08);
+  --pessoa:linear-gradient(150deg,#2f3a63,#0e1020);
+  --evento:linear-gradient(150deg,#3d5a3a,#101a10);
+  --gap:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:Poppins,system-ui,sans-serif;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+a,button{color:inherit;font:inherit}
+button:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* barra superior com aba (como no rascunho) */
+.topbar{height:38px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;padding-left:8px;flex:none}
+.tab{height:30px;width:150px;background:var(--panel-2);border:1px solid var(--line);border-bottom:0;display:flex;align-items:center;padding-left:14px;clip-path:polygon(0 0,82% 0,100% 100%,0 100%)}
+.tab svg{width:16px;height:16px;stroke:var(--text)}
+
+.app{flex:1;display:grid;grid-template-columns:300px 1fr;min-height:0}
+
+/* sidebar: trilho + painel */
+.side{border-right:1px solid var(--line);display:grid;grid-template-columns:84px 1fr;grid-template-rows:auto 1fr;min-height:0}
+.brand{grid-column:1/-1;padding:18px 18px 14px}
+.logo{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:54px;line-height:1;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1.6px var(--text);display:block;margin-bottom:14px}
+.search{display:flex;align-items:center;gap:8px;border:1.5px solid var(--text);border-radius:999px;padding:7px 14px;background:var(--panel)}
+.search svg{width:15px;height:15px;stroke:var(--text);flex:none}
+.search input{flex:1;min-width:0;background:none;border:0;color:var(--text);font:400 13px Poppins,sans-serif}
+.search input::placeholder{color:var(--muted)}
+.rail{border-top:1px solid var(--line);border-right:1px solid var(--line);padding:14px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.rail button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:11px;color:var(--muted);transition:border-color .15s,color .15s}
+.rail button[aria-pressed="true"]{border-color:var(--accent);color:var(--text)}
+.list{border-top:1px solid var(--line);padding:16px 14px;overflow:auto}
+.list h2{font-size:12px;font-weight:500;color:var(--muted);margin-bottom:12px}
+.list ul{list-style:none;display:grid;gap:8px}
+.list li{height:44px;border-radius:10px;background:var(--panel);border:1px solid var(--line)}
+
+/* grid bento: 12x12, igual ao desenho */
+.board{padding:var(--gap);display:grid;grid-template-columns:repeat(12,1fr);grid-template-rows:repeat(12,minmax(0,1fr));gap:var(--gap);min-height:640px;min-width:0}
+.card{position:relative;overflow:hidden;border-radius:14px;border:1px solid var(--line);background:var(--panel);cursor:pointer;display:flex;flex-direction:column;justify-content:flex-end;padding:12px 14px;transition:border-color .15s,transform .15s}
+.card:hover{border-color:#55564c}
+.card::before{content:"";position:absolute;inset:0;opacity:.9;z-index:0}
+.card[data-type="pintura"]::before{background:var(--pintura)}
+.card[data-type="personalidade"]::before{background:var(--pessoa)}
+.card[data-type="evento"]::before{background:var(--evento)}
+.card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.65),transparent 60%);z-index:0}
+.card>*{position:relative;z-index:1}
+.tag{font-size:11px;font-weight:500;color:#d9d5c8;margin-bottom:4px}
+.title{font-family:'Chakra Petch',sans-serif;font-weight:600;font-size:clamp(14px,1.45vw,22px);line-height:1.15}
+.big .title{font-size:clamp(20px,2.3vw,34px)}
+.desc{font-size:12px;color:#cfcbbd;margin-top:6px;max-width:34ch}
+.small .desc,.small .tag{display:none}
+.typing::after{content:"▍";margin-left:2px;color:var(--accent);animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* posições (linha-início / coluna-início / linha-fim / coluna-fim) */
+.c1{grid-area:1/1/4/5}.c2{grid-area:4/1/7/3}.c3{grid-area:4/3/7/5}
+.c4{grid-area:7/1/10/5}.c5{grid-area:10/1/13/5}
+.c6{grid-area:1/5/5/8}.c7{grid-area:1/8/3/10}.c8{grid-area:3/8/5/10}
+.c9{grid-area:1/10/5/13}.c10{grid-area:5/5/9/10}.c11{grid-area:5/10/7/13}
+.c12{grid-area:7/10/13/13}.c13{grid-area:9/5/11/7}.c14{grid-area:11/5/13/7}
+.c15{grid-area:9/7/13/10}
+
+@media(max-width:1000px){
+  body{height:auto}
+  .app{grid-template-columns:1fr}
+  .side{border-right:0;border-bottom:1px solid var(--line);grid-template-rows:auto auto}
+  .rail{flex-direction:row;padding:10px 14px;border-right:0}
+  .list{display:none}
+  .side{grid-template-columns:1fr}
+  .board{grid-template-columns:1fr 1fr;grid-template-rows:none;grid-auto-rows:150px;min-height:0}
+  .card{grid-area:auto!important}
+  .big{grid-column:span 2}
+}
+@media(prefers-reduced-motion:reduce){.typing::after{animation:none}*{transition:none!important}}
+</style>
 </head>
 <body>
-  <header>
-    <strong>Arandu</strong>
-    <form action="/logout" method="POST">
-      <button type="submit">Sair</button>
-    </form>
-  </header>
 
-  <main>
-    <h1>Olá, <span id="nome">...</span>! 👋</h1>
-    <p>Você está logado. Esta é a tela principal do site.</p>
+<div class="topbar">
+  <div class="tab" aria-hidden="true">
+    <svg viewBox="0 0 16 16" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l5-4 5 4M3 12l5-4 5 4"/></svg>
+  </div>
+</div>
+
+<div class="app">
+  <aside class="side">
+    <div class="brand">
+      <a href="#" class="logo" aria-label="Arandu">ARANDU</a>
+      <label class="search">
+        <svg viewBox="0 0 16 16" fill="none" stroke-width="1.6" stroke-linecap="round"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5L14 14"/></svg>
+        <input id="q" type="search" placeholder="" aria-label="Buscar">
+      </label>
+    </div>
+    <nav class="rail" aria-label="Categorias">
+      <button aria-pressed="true" title="Pinturas">Pintura</button>
+      <button aria-pressed="false" title="Personalidades">Pessoas</button>
+      <button aria-pressed="false" title="Eventos históricos">Eventos</button>
+    </nav>
+    <div class="list">
+      <h2>Recentes</h2>
+      <ul><li></li><li></li><li></li><li></li><li></li></ul>
+    </div>
+  </aside>
+
+  <main class="board" id="board">
+    <article class="card c1 big"  data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="Abaporu, Tarsila do Amaral" data-desc="1928 · O quadro que inspirou o Movimento Antropofágico."></article>
+    <article class="card c2 small" data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Dandara"></article>
+    <article class="card c3 small" data-type="evento"      tabindex="0" data-tag="Evento histórico" data-title="Revolta dos Malês"></article>
+    <article class="card c4"      data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Machado de Assis" data-desc="Fundador da Academia Brasileira de Letras."></article>
+    <article class="card c5"      data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="Operários" data-desc="Tarsila do Amaral, 1933."></article>
+    <article class="card c6"      data-type="evento"       tabindex="0" data-tag="Evento histórico" data-title="Guerra Guaranítica" data-desc="1754–1756 · Sepé Tiaraju e os povos das Missões."></article>
+    <article class="card c7 small" data-type="pintura"     tabindex="0" data-tag="Pintura" data-title="Guernica"></article>
+    <article class="card c8 small" data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Frida Kahlo"></article>
+    <article class="card c9"      data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Sepé Tiaraju" data-desc="Líder guarani nas Missões."></article>
+    <article class="card c10 big" data-type="evento"       tabindex="0" data-tag="Evento histórico" data-title="Semana de Arte Moderna" data-desc="1922 · O marco do modernismo brasileiro."></article>
+    <article class="card c11"     data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="A Noite Estrelada"></article>
+    <article class="card c12"     data-type="evento"       tabindex="0" data-tag="Evento histórico" data-title="Independência do Brasil" data-desc="7 de setembro de 1822."></article>
+    <article class="card c13 small" data-type="personalidade" tabindex="0" data-tag="Personalidade" data-title="Carolina de Jesus"></article>
+    <article class="card c14 small" data-type="evento"     tabindex="0" data-tag="Evento histórico" data-title="Queda da Bastilha"></article>
+    <article class="card c15"     data-type="pintura"      tabindex="0" data-tag="Pintura" data-title="Independência ou Morte" data-desc="Pedro Américo, 1888."></article>
   </main>
+</div>
 
-  <script>
-    fetch('/api/usuario')
-      .then(r => r.json())
-      .then(dados => {
-        document.getElementById('nome').textContent = dados.nome;
-      });
-  </script>
+<script>
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// monta os cards e digita o título (animação de escrita com teclado)
+async function type(el, text, speed = 38){
+  if (reduce){ el.textContent = text; return; }
+  el.classList.add('typing'); el.textContent = '';
+  for (const ch of text){ el.textContent += ch; await sleep(speed + Math.random()*30); }
+  el.classList.remove('typing');
+}
+document.querySelectorAll('.card').forEach((c, i) => {
+  c.innerHTML = '<span class="tag"></span><h3 class="title"></h3>' + (c.dataset.desc ? '<p class="desc"></p>' : '');
+  c.querySelector('.tag').textContent = c.dataset.tag;
+  if (c.dataset.desc) c.querySelector('.desc').textContent = c.dataset.desc;
+  const t = c.querySelector('.title');
+  t.setAttribute('aria-label', c.dataset.title);
+  setTimeout(() => type(t, c.dataset.title), 250 + i * 160);
+});
+
+// placeholder da busca alternando entre os três tipos
+const q = document.getElementById('q');
+const frases = ['uma pintura…', 'uma personalidade…', 'um evento histórico…'];
+(async function loop(){
+  if (reduce){ q.placeholder = 'Buscar no Arandu'; return; }
+  let i = 0;
+  while (true){
+    const f = 'Buscar ' + frases[i++ % frases.length];
+    for (let n = 1; n <= f.length; n++){ q.placeholder = f.slice(0, n); await sleep(55); }
+    await sleep(1400);
+    for (let n = f.length; n >= 7; n--){ q.placeholder = f.slice(0, n); await sleep(22); }
+  }
+})();
+
+// filtro de categoria no trilho (só visual por enquanto)
+document.querySelectorAll('.rail button').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.rail button').forEach(x => x.setAttribute('aria-pressed', x === b));
+}));
+</script>
 </body>
 </html>
