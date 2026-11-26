@@ -117,6 +117,17 @@ function seguro(u){return typeof u==="string"&&u.indexOf("https://")===0?u:""}
 function limpar(h){if(!h)return"";return(new DOMParser().parseFromString(h,"text/html").body.textContent||"").replace(/\s+/g," ").trim()}
 async function getJSON(u){var r=await fetch(u);if(!r.ok)throw new Error("http "+r.status);return r.json()}
 function ok(x){return x.status==="fulfilled"}
+async function emFila(itens,limite,fn){
+  var res=new Array(itens.length),n=0;
+  async function worker(){while(n<itens.length){var i=n++;try{res[i]={status:"fulfilled",value:await fn(itens[i])}}catch(e){res[i]={status:"rejected",reason:e}}}}
+  await Promise.all(Array.from({length:Math.min(limite,itens.length)},worker));
+  return res;
+}
+async function getJSONTenta(u,vezes){
+  for(var t=0;;t++){
+    try{return await getJSON(u)}catch(e){if(t>=vezes)throw e;await new Promise(function(r){setTimeout(r,600*(t+1))})}
+  }
+}
 
 /* ---------- Wikimedia Commons ---------- */
 var CAPI="https://commons.wikimedia.org/w/api.php";
@@ -156,14 +167,14 @@ var FONTES={
       var API="https://collectionapi.metmuseum.org/public/collection/v1/";
       if(!st.ids){
         var base=API+"search?hasImages=true&isPublicDomain=true&q="+enc(q);
-        var r=await getJSON(base+"&medium=Paintings");
-        if(!r.objectIDs||!r.objectIDs.length)r=await getJSON(base+"&departmentId=11");
+        var r=await getJSONTenta(base+"&departmentId=11",2);
+        if(!r.objectIDs||!r.objectIDs.length)r=await getJSONTenta(base+"&medium=Paintings",2);
         st.ids=r.objectIDs||[];st.i=0;
       }
       var out=[],t=0;
-      while(!out.length&&st.i<st.ids.length&&t++<3){
-        var lote=st.ids.slice(st.i,st.i+30);st.i+=30;
-        var rs=await Promise.allSettled(lote.map(function(id){return getJSON(API+"objects/"+id)}));
+      while(out.length<4&&st.i<st.ids.length&&t++<4){
+        var lote=st.ids.slice(st.i,st.i+12);st.i+=12;
+        var rs=await emFila(lote,4,function(id){return getJSONTenta(API+"objects/"+id,1)});
         rs.filter(ok).forEach(function(x){
           var d=x.value;
           if(!seguro(d.primaryImageSmall)||!/paint/i.test(d.classification||""))return;
@@ -178,18 +189,22 @@ var FONTES={
   aic:{nome:"Art Institute of Chicago",curto:"Art Institute",credito:"Foto via Art Institute of Chicago",
     async buscar(q,st){
       st.p=st.p||1;
-      var u="https://api.artic.edu/api/v1/artworks/search?q="+enc(q)+"&query[term][artwork_type_title]=Painting"+
-        "&fields=id,title,artist_display,date_display,place_of_origin,dimensions,medium_display,image_id,is_public_domain,thumbnail&limit=40&page="+st.p;
-      var r=await getJSON(u),out=[];
+      var out=[],t=0,r;
+      while(!out.length&&t++<4){
+      var u="https://api.artic.edu/api/v1/artworks/search?q="+enc(q)+"&query[term][is_public_domain]=true"+
+        "&fields=id,title,artist_display,date_display,place_of_origin,dimensions,medium_display,image_id,is_public_domain,artwork_type_title,classification_title,thumbnail&limit=100&page="+st.p;
+      r=await getJSONTenta(u,1);
       (r.data||[]).forEach(function(d){
         if(!d.image_id||!d.is_public_domain)return;
+        if(!/paint/i.test((d.artwork_type_title||"")+" "+(d.classification_title||"")))return;
         var th=d.thumbnail||{},img="https://www.artic.edu/iiif/2/"+d.image_id+"/full/843,/0/default.jpg";
         out.push({id:String(d.id),titulo:d.title||"Sem título",artista:(d.artist_display||"").split("\n")[0],data:d.date_display||"",
           local:d.place_of_origin||"",tecnica:d.medium_display||"",dimensoes:d.dimensions||"",licenca:"Domínio público",
           w:th.width,h:th.height,thumb:img,grande:img});
       });
-      if(!r.pagination||st.p>=r.pagination.total_pages)st.fim=true;
+      if(!r.pagination||st.p>=r.pagination.total_pages){st.fim=true;break}
       st.p++;
+      }
       return out;
     }},
   rijks:{nome:"Rijksmuseum",curto:"Rijksmuseum",credito:"Foto via Rijksmuseum",
@@ -277,7 +292,7 @@ async function rodada(id){
   rs.forEach(function(x,i){
     var k=ativos[i];
     if(ok(x))arrs.push(x.value.map(function(o){o.fonte=k;return o}));
-    else{estado[k].fim=true;estado[k].erro=true}
+    else{estado[k].fim=true;estado[k].erro=true;console.warn('[Pinacotech] falha em '+k+':',x.reason)}
   });
   var antes=total,max=0;
   arrs.forEach(function(a){max=Math.max(max,a.length)});
